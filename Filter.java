@@ -7,9 +7,14 @@ public class Filter {
    //calculated with the getk function below
    private static final double k = .000000022370102912772287;
    //note: elemement 0 = # of jokes rated NOT a rating
-   private static ArrayList<ArrayList<Double>> data; 
+   private ArrayList<ArrayList<Double>> data; 
 
-   public static void parseCSV(String file) {
+   public Filter() {
+      data = new ArrayList<ArrayList<Double>>();
+      parseCSV("jester-data-1.csv");
+   }
+
+   private void parseCSV(String file) {
       Scanner sc = null;
 
       try {
@@ -41,7 +46,7 @@ public class Filter {
       }
    }
 
-   public static double cosineSim(ArrayList<Double> u1, ArrayList<Double> u2) {
+   private double cosineSim(ArrayList<Double> u1, ArrayList<Double> u2) {
       double top = 0.0;
       double bot1 = 0.0;
       double bot2 = 0.0;
@@ -57,22 +62,23 @@ public class Filter {
       return top / (Math.sqrt(bot1*bot2));
    } 
 
-   public static double getk() {
+   public double getk() {
       double sum = 0;
 
       for (int i = 0; i < data.size(); i++) {
          for (int j = i+1; j < data.size(); j++) {
-            sum += cosineSim(data.get(i), data.get(j));
+            sum += Math.abs(cosineSim(data.get(i), data.get(j)));
          }
       }
       return 1/sum;
    }
 
    //currently uses itself in the calculation....shouldn't matter though
-   public static double adjustedWeightedSum(ArrayList<Double> u, int ndx) {
+   public double adjustedWeightedSum(int user, int ndx) {
       double uavg = 0.0;
       double ans = 0.0;
       double sum = 0.0;
+      ArrayList<Double> u = data.get(user);
 
       for (int i = 1; i < u.size(); i++)
          if (Double.compare(u.get(i), 99.0) != 0) 
@@ -88,23 +94,11 @@ public class Filter {
       return ans;      
    }
 
-   public static void main(String[] args) {
+   public int getSize() {
+      return data.size();
+   }
 
-      if (args.length != 1) {
-         System.out.println("usage: java Filter <csv file>");
-         System.exit(1);
-      } 
-
-
-      parseCSV(args[0]);
-      /*for (int i = 0; i < 10; i++) 
-         for (int j = i+1; j < 10; j++) 
-            System.out.println(cosineSim(data.get(i), data.get(j)));
-*/
-      //some example tests
-      System.out.println(adjustedWeightedSum(data.get(11), 1));
-      System.out.println(adjustedWeightedSum(data.get(11), 2));
-      System.out.println(adjustedWeightedSum(data.get(11), 3));
-      System.out.println(adjustedWeightedSum(data.get(11), 4));
+   public ArrayList<Double> getUser(int ndx) {
+      return data.get(ndx);
    }
 }
