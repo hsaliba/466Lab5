@@ -4,8 +4,6 @@ import java.io.*;
 
 public class Filter {
 
-   //calculated with the getk function below
-   private static final double k = .000000012639473357020619;
    //note: elemement 0 = # of jokes rated NOT a rating
    private ArrayList<ArrayList<Double>> data; 
 
@@ -62,13 +60,12 @@ public class Filter {
       return top / (Math.sqrt(bot1*bot2));
    } 
 
-   public double getk() {
+   public double getk(int u, int col) {
       double sum = 0;
 
       for (int i = 0; i < data.size(); i++) {
-         for (int j = i+1; j < data.size(); j++) {
-            sum += Math.abs(cosineSim(data.get(i), data.get(j)));
-         }
+         if (Double.compare(data.get(i).get(col), 99.0) != 0) 
+            sum += Math.abs(cosineSim(data.get(u), data.get(i)));
       }
       return 1/sum;
    }
@@ -76,6 +73,7 @@ public class Filter {
    public double weightedSum(int user, int ndx) {
       double ans = 0.0;
       double sum = 0.0;
+      double k = getk(user, ndx);
       ArrayList<Double> u = data.get(user);
 
       for (int i = 0; i < data.size(); i++) {
@@ -97,8 +95,8 @@ public class Filter {
             temp = data.get(i);
             if (Double.compare(temp.get(s), 99.0) != 0) {
                rating += temp.get(s);
+               count++;
             }
-            count++;
          }
       }
       return rating / count;
@@ -107,14 +105,14 @@ public class Filter {
    
    public double adjWeightedSum(int c, int s) {
       double rating = 0, temp = 0, total = 0;
+      double k = getk(c, s);
       rating += avgRating(c);
       for(int i = 0; i < data.size(); i++) {
          if(i != c) {
             temp = data.get(i).get(s);
-            if(Double.compare(temp, 99.0) == 0) {
-               temp = 0;
-            }
-            total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
+            if(Double.compare(temp, 99.0) != 0) {
+               total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
+            }           
          }
       }
       rating += k*total;
@@ -128,8 +126,8 @@ public class Filter {
       for(double i : temp) {
          if(Double.compare(i, 99.0) != 0) {
             rating += i;
+            count++;
          }
-         count++;
       }
       return rating / count;
    }
