@@ -5,7 +5,8 @@ import java.io.File;
 
 public class EvaluateCFList {
    private static int method = 0;
-   private static List<List<Double>> data = new ArrayList<List<Double>> ();
+   private static List<List<Integer>> data = new ArrayList<List<Integer>> ();
+   
    public static void main(String[] args) {
       if(args.length != 2) {
          System.out.println("usage: EvaluateCFList Method Filename");
@@ -18,11 +19,57 @@ public class EvaluateCFList {
          System.exit(-1);
       }
       parseCSV(args[1]);
-      for(int i = 0; i < data.size(); i++) {
-         for (int j = 0; j < data.get(i).size(); j++) 
-            System.out.print(data.get(i).get(j) + " ");
-         System.out.println();
+      evaluate();
+   }
+   
+   public static void evaluate() {
+      Filter filter = new Filter();
+      int size = filter.getSize();
+      int index = 0, joke = 0;
+      List<Double> user = null;
+      int totalRecordsUsed = 0;
+      double predicted = 0, actual = 0, mae = 0;
+      for(List<Integer> i : data) {
+         if(i.size() == 0) {
+            break;
          }
+         index = i.get(0);
+         joke = i.get(1);
+         if(index >= size) {
+            System.out.println("User ID not found");
+            System.exit(-4);
+         }
+         user = filter.getUser(index);
+         actual = user.get(joke);
+         if(Double.compare(actual, 99.0) == 0) {
+            System.out.println("UserID: " + index); 
+            System.out.println("itemID: " + joke);
+            System.out.println("Actual_Rating: N/A\nTest case is Invalid\n");
+         } else {
+            switch(method) {
+               case 0:
+                  predicted = filter.meanUtility(index, joke);
+               break;
+               case 1:
+                  predicted = filter.weightedSum(index, joke);
+               break;
+               case 2:
+                  predicted = filter.adjWeightedSum(index, joke);
+               break;
+               default:
+                  System.exit(-3);
+            }
+            System.out.println("UserID: " + index); 
+            System.out.println("itemID: " + joke);
+            System.out.println("Actual_Rating: " + actual);
+            System.out.println("Predicted_Rating: " + predicted);
+            System.out.println("Delta_Rating: " + (actual - predicted) + "\n");                   
+            mae += Math.abs(predicted - actual);
+            totalRecordsUsed++;
+         }
+      }
+      mae /= totalRecordsUsed;
+      System.out.println("MAE: " + mae);   
    }
    
    public static void parseCSV(String file) {
@@ -39,19 +86,19 @@ public class EvaluateCFList {
       String[] line = null;
       while (sc.hasNextLine()) {
          line = sc.nextLine().split(delims);
-         List<Double> temp = new ArrayList<Double>();
-
+         List<Integer> temp = new ArrayList<Integer>();
+         int d = 0;
          for (String s : line) {
-            double d = 0.0;
-            if(s.trim().length() != 0) {
-              try { 
-                d = Double.parseDouble(s);
-              }
-              catch (NumberFormatException e) {
-                System.out.println("Caught: "+e);
-              }
-            
-             temp.add(Double.parseDouble(s));
+            s = s.trim();
+            if(s.length() != 0) {
+               try { 
+                  d = Integer.parseInt(s);
+               }
+               catch (NumberFormatException e) {
+                  e.printStackTrace();
+                  System.exit(-2);
+               }
+               temp.add(d);
             }
          }
          data.add(temp);
