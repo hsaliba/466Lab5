@@ -9,13 +9,13 @@ public class EvaluateCFList {
    
    public static void main(String[] args) {
       if(args.length != 2) {
-         System.out.println("usage: EvaluateCFList Method Filename");
+         System.out.println("usage: EvaluateCFList {0,1,2} Filename");
          System.exit(-1);
       }
       try {
          method = Integer.parseInt(args[0]);
       } catch (Exception e) {
-         System.out.println("usage: EvaluateCFList Method Filename");
+         System.out.println("usage: EvaluateCFList {0,1,2} Filename");
          System.exit(-1);
       }
       parseCSV(args[1]);

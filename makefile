@@ -1,4 +1,4 @@
-all: random filter 
+all: random filter list
 
 
 filter:
@@ -6,6 +6,9 @@ filter:
 
 random:
 	javac EvaluateCFRandom.java
+
+list:
+	javac EvaluateCFList.java
 
 clean:
 	rm *.class
