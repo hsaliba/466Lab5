@@ -4,8 +4,6 @@ import java.io.*;
 
 public class Filter {
 
-   //calculated with the getk function below
-   private static final double k = .000000022370102912772287;
    //note: elemement 0 = # of jokes rated NOT a rating
    private ArrayList<ArrayList<Double>> data; 
 
@@ -62,34 +60,28 @@ public class Filter {
       return top / (Math.sqrt(bot1*bot2));
    } 
 
-   public double getk() {
+   public double getk(int u, int col) {
       double sum = 0;
 
       for (int i = 0; i < data.size(); i++) {
-         for (int j = i+1; j < data.size(); j++) {
-            sum += Math.abs(cosineSim(data.get(i), data.get(j)));
-         }
+         if (Double.compare(data.get(i).get(col), 99.0) != 0) 
+            sum += Math.abs(cosineSim(data.get(u), data.get(i)));
       }
       return 1/sum;
    }
 
-   //currently uses itself in the calculation....shouldn't matter though
-   public double adjustedWeightedSum(int user, int ndx) {
-      double uavg = 0.0;
+   public double weightedSum(int user, int ndx) {
       double ans = 0.0;
       double sum = 0.0;
+      double k = getk(user, ndx);
       ArrayList<Double> u = data.get(user);
-
-      for (int i = 1; i < u.size(); i++)
-         if (Double.compare(u.get(i), 99.0) != 0) 
-            uavg += u.get(i);
-      uavg = uavg / (u.size()-1);
 
       for (int i = 0; i < data.size(); i++) {
          double val = data.get(i).get(ndx);
-         sum += cosineSim(u, data.get(i)) * ((Double.compare(val, 99.0) == 0 ? 0 : val) - uavg);
+         if (Double.compare(val, 99.0) != 0 && user != i) 
+            sum += cosineSim(u, data.get(i)) * val;
       } 
-      ans = uavg + (k * sum);
+      ans = k * sum;
       
       return ans;      
    }
@@ -101,8 +93,8 @@ public class Filter {
       for (int i = 0; i < data.size(); i++) {
          if (i != c) {
             temp = data.get(i);
-            if (Double.compare(temp.get(s + 1), 99.0) != 0) {
-               rating += temp.get(s + 1);
+            if (Double.compare(temp.get(s), 99.0) != 0) {
+               rating += temp.get(s);
                count++;
             }
          }
@@ -113,10 +105,11 @@ public class Filter {
    
    public double adjWeightedSum(int c, int s) {
       double rating = 0, temp = 0, total = 0;
+      double k = getk(c, s);
       rating += avgRating(c);
-      for(int i = 0; c < data.size(); c++) {
+      for(int i = 0; i < data.size(); i++) {
          if(i != c) {
-            temp = data.get(i).get(s+ 1);
+            temp = data.get(i).get(s);
             if(Double.compare(temp, 99.0) != 0) {
                total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
             }           
