@@ -94,6 +94,52 @@ public class Filter {
       return ans;      
    }
 
+   public double meanUtility(int c, int s) {
+      double rating = 0;
+      int count = 0;
+      ArrayList<Double> temp;
+      for (int i = 0; i < data.size(); i++) {
+         if (i != c) {
+            temp = data.get(i);
+            if (Double.compare(temp.get(s + 1), 99.0) != 0) {
+               rating += temp.get(s + 1);
+            }
+            count++;
+         }
+      }
+      return rating / count;
+      
+   }
+   
+   public double adjWeightedSum(int c, int s) {
+      double rating = 0, temp = 0, total = 0;
+      rating += avgRating(c);
+      for(int i = 0; c < data.size(); c++) {
+         if(i != c) {
+            temp = data.get(i).get(s+ 1);
+            if(Double.compare(temp, 99.0) == 0) {
+               temp = 0;
+            }
+            total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
+         }
+      }
+      rating += k*total;
+      return rating;
+   }
+   
+   private double avgRating(int c) {
+      double rating = 0;
+      ArrayList<Double> temp = data.get(c);
+      int count = 0;
+      for(double i : temp) {
+         if(Double.compare(i, 99.0) != 0) {
+            rating += i;
+         }
+         count++;
+      }
+      return rating / count;
+   }
+
    public int getSize() {
       return data.size();
    }
@@ -102,3 +148,4 @@ public class Filter {
       return data.get(ndx);
    }
 }
+

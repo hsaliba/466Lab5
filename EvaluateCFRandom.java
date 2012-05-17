@@ -53,9 +53,9 @@ public class EvaluateCFRandom {
          System.exit(0);
       }
 
-      test(20, 2);
+//      test(20, 2);
       Filter filter = new Filter();
-     // System.out.println("k: "+filter.getk());
+      System.out.println("k: "+filter.getk());
    }
 
 }
