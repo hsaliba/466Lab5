@@ -103,8 +103,8 @@ public class Filter {
             temp = data.get(i);
             if (Double.compare(temp.get(s + 1), 99.0) != 0) {
                rating += temp.get(s + 1);
+               count++;
             }
-            count++;
          }
       }
       return rating / count;
@@ -117,10 +117,9 @@ public class Filter {
       for(int i = 0; c < data.size(); c++) {
          if(i != c) {
             temp = data.get(i).get(s+ 1);
-            if(Double.compare(temp, 99.0) == 0) {
-               temp = 0;
-            }
-            total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
+            if(Double.compare(temp, 99.0) != 0) {
+               total += (cosineSim(data.get(c), data.get(i))) * (temp - avgRating(i));
+            }           
          }
       }
       rating += k*total;
@@ -134,8 +133,8 @@ public class Filter {
       for(double i : temp) {
          if(Double.compare(i, 99.0) != 0) {
             rating += i;
+            count++;
          }
-         count++;
       }
       return rating / count;
    }
